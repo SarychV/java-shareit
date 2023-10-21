@@ -1,6 +1,6 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -9,65 +9,84 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
-    @Autowired
-    ItemRepository itemRepository;
-    @Autowired
-    UserRepository userRepository;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
 
     @Override
-    public Item addItem(ItemDto itemDto) {
-        Item item = null;
-        if (itemDto.getName().isEmpty()) {
+    public ItemDto addItem(ItemDto itemDto, Integer ownerId) {
+        Item item = ItemMapper.toItem(itemDto);
+        item.setOwner(ownerId);
+
+        if (item.getName().isEmpty()) {
             throw new ValidationException("Поле name должно иметь значение.");
         }
-        if (itemDto.getDescription() == null) {
+        if (item.getDescription() == null) {
             throw new ValidationException("Поле description не должно быть null.");
         }
-        if (itemDto.getAvailable() == null) {
+        if (item.getAvailable() == null) {
             throw new ValidationException("Поле available не должно быть null.");
         }
-        if (userRepository.getUser(itemDto.getOwner()) != null) {
-            item = itemRepository.addItem(ItemMapper.toItem(itemDto));
+        if (userRepository.getUser(ownerId) == null) {
+            throw new NotFoundException(
+                    String.format("Не найден владелец с идентификатором: %d.", ownerId));
         }
-        return item;
+        return ItemMapper.toItemDto(itemRepository.addItem(item));
     }
 
     @Override
-    public Item updateItem(Long id, ItemDto itemDto) {
-        Item item = Item.copyOf(itemRepository.getItem(id));
-        if (userRepository.getUser(itemDto.getOwner()) != null) {
-            if (!Objects.equals(itemDto.getOwner(), item.getOwner())) {
-                throw new NotFoundException("Неверно указан владелец.");
+    public ItemDto updateItem(Long id, ItemDto itemDto, Integer ownerId) {
+        Item modifiedItem = Item.copyOf(itemRepository.getItem(id));
+
+        if (userRepository.getUser(ownerId) == null) {
+            throw new NotFoundException(
+                    String.format("Не найден владелец с id=%d.", ownerId));
+        } else {
+            if (!modifiedItem.getOwner().equals(ownerId)) {
+                throw new NotFoundException(
+                        String.format("Пользователь с id=%d не владелец вещи с id=%d.",
+                                ownerId, id));
             }
         }
-        if (itemDto.getName() != null) {
-            item.setName(itemDto.getName());
+
+        String name = itemDto.getName();
+        if (name != null) {
+            modifiedItem.setName(name);
         }
-        if (itemDto.getDescription() != null) {
-            item.setDescription(itemDto.getDescription());
+
+        String description = itemDto.getDescription();
+        if (description != null) {
+            modifiedItem.setDescription(description);
         }
-        if (itemDto.getAvailable() != null) {
-            item.setAvailable(itemDto.getAvailable());
+
+        Boolean available = itemDto.getAvailable();
+        if (available != null) {
+            modifiedItem.setAvailable(available);
         }
-        return itemRepository.updateItem(id, item);
+
+        return ItemMapper.toItemDto(itemRepository.updateItem(modifiedItem));
     }
 
     @Override
-    public Item getItem(Long itemId) {
-        return itemRepository.getItem(itemId);
+    public ItemDto getItem(Long itemId) {
+        return ItemMapper.toItemDto(itemRepository.getItem(itemId));
     }
 
     @Override
-    public List<Item> getAllItemsByOwnerId(Integer ownerId) {
-        return itemRepository.getAllItemsByOwnerId(ownerId);
+    public List getAllItemsByOwnerId(Integer ownerId) {
+        return itemRepository.getAllItemsByOwnerId(ownerId).stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Item> lookupItemsByText(String text) {
-        return itemRepository.lookupItemsByText(text);
+    public List lookupItemsByText(String text) {
+        return itemRepository.lookupItemsByText(text).stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
     }
 }

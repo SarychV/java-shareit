@@ -11,7 +11,7 @@ public class Item {
     private Long id;                // Уникальный идентификатор вещи
     private String name;            // Название вещи
     private String description;     // Развернутое описание
-    private boolean available;      // Доступна вещь для аренды или нет
+    private Boolean available;      // Доступна вещь для аренды или нет
     private Integer owner;          // Владелец вещи
     private Long requestId;         // Если вещь была создана по запросу другого пользователя, то в поле
                                     // будет храниться ссылка на запрос, иначе null

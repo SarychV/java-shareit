@@ -7,7 +7,7 @@ import java.util.List;
 public interface ItemRepository {
     Item addItem(Item item);
 
-    Item updateItem(Long id, Item item);
+    Item updateItem(Item item);
 
     Item getItem(Long id);
 

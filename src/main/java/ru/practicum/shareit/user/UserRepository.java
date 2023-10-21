@@ -7,7 +7,7 @@ import java.util.List;
 public interface UserRepository {
     User addUser(User user);
 
-    User updateUser(Integer id, User user);
+    User updateUser(User user);
 
     User getUser(Integer id);
 

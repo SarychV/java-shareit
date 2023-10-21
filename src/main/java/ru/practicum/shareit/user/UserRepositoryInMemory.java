@@ -32,9 +32,10 @@ public class UserRepositoryInMemory implements UserRepository {
     }
 
     @Override
-    public User updateUser(Integer id, User user) {
+    public User updateUser(User user) {
+        Integer id = user.getId();
         users.put(id, user);
-        return user;
+        return users.get(id);
     }
 
     @Override

@@ -1,8 +1,8 @@
 package ru.practicum.shareit.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
 
@@ -12,29 +12,28 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/users")
+@RequiredArgsConstructor
 public class UserController {
-    @Autowired
-    UserService userService;
+    private final UserService userService;
 
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        user.hasValidEmailOrThrow();
-        return userService.addUser(user);
+    public UserDto createUser(@RequestBody UserDto userDto) {
+        return userService.addUser(userDto);
     }
 
     @PatchMapping("/{userId}")
-    public User updateUser(@RequestBody User user, @PathVariable Integer userId) {
-        user.hasValidEmailOrThrow();
-        return userService.updateUser(userId, user);
+    public UserDto updateUser(@RequestBody UserDto userDto, @PathVariable Integer userId) {
+        userDto.setId(userId);
+        return userService.updateUser(userDto);
     }
 
     @GetMapping("/{userId}")
-    public User getUser(@PathVariable Integer userId) {
+    public UserDto getUser(@PathVariable Integer userId) {
         return userService.getUser(userId);
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List getAllUsers() {
         return userService.getAllUsers();
     }
 

@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 @Repository
 public class ItemRepositoryInMemory implements ItemRepository {
-    Map<Long, Item> items = new HashMap<>();
+    private final Map<Long, Item> items = new HashMap<>();
     private Long lastItemId = 0L;
 
     @Override
@@ -24,7 +24,8 @@ public class ItemRepositoryInMemory implements ItemRepository {
     }
 
     @Override
-    public Item updateItem(Long id, Item item) {
+    public Item updateItem(Item item) {
+        Long id = item.getId();
         items.put(id, item);
         return items.get(id);
     }
@@ -53,7 +54,7 @@ public class ItemRepositoryInMemory implements ItemRepository {
                     if (!searchText.isBlank()
                         && (item.getName().toLowerCase().contains(searchText)
                             || item.getDescription().toLowerCase().contains((searchText)))
-                        && item.isAvailable()) {
+                        && item.getAvailable()) {
                         return true;
                     }
                     return false;
