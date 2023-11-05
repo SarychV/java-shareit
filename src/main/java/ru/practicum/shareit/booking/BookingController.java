@@ -17,19 +17,19 @@ import java.util.List;
 @RequestMapping(path = "/bookings")
 public class BookingController {
     private final BookingService bookingService;
-    private final String hEADERuSERiD = "X-Sharer-User-Id";
-    
+    private static final String HEADER_USER_ID = "X-Sharer-User-Id";
+
     @PostMapping
 
     public BookingDtoOut addBookingRequest(
             @RequestBody BookingDtoIn bookingDtoIn,
-            @RequestHeader(hEADERuSERiD) @NotNull Integer bookerId) {
+            @RequestHeader(HEADER_USER_ID) @NotNull Integer bookerId) {
         return bookingService.addBooking(bookerId, bookingDtoIn);
     }
 
     @PatchMapping("/{bookingId}")
     public BookingDtoOut makeBookingApproved(
-            @RequestHeader(hEADERuSERiD) Integer ownerId,
+            @RequestHeader(HEADER_USER_ID) Integer ownerId,
             @PathVariable Long bookingId,
             @RequestParam Boolean approved) {
         return bookingService.ownerApproveBooking(ownerId, bookingId, approved);
@@ -37,21 +37,21 @@ public class BookingController {
 
     @GetMapping("/{bookingId}")
     public BookingDtoOut getBookingByOwnerOrBooker(
-            @RequestHeader(hEADERuSERiD) @NotNull Integer userId,
+            @RequestHeader(HEADER_USER_ID) @NotNull Integer userId,
             @PathVariable Long bookingId) {
         return bookingService.getBookingByOwnerOrBooker(userId, bookingId);
     }
 
     @GetMapping
     public List getAllBookingsByBooker(
-            @RequestHeader(hEADERuSERiD) @NotNull Integer bookerId,
+            @RequestHeader(HEADER_USER_ID) @NotNull Integer bookerId,
             @RequestParam(required = false) String state) {
         return bookingService.getAllByBooker(bookerId, state);
     }
 
     @GetMapping("/owner")
     public List getAllBookingsByOwner(
-            @RequestHeader(hEADERuSERiD) @NotNull Integer ownerId,
+            @RequestHeader(HEADER_USER_ID) @NotNull Integer ownerId,
             @RequestParam(required = false) String state) {
         return bookingService.getAllByOwner(ownerId, state);
     }
