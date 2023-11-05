@@ -20,7 +20,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class BookingServiceImpl {
+public class BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
@@ -143,8 +143,6 @@ public class BookingServiceImpl {
     }
 
     protected StateStatus getStateStatus(final String state) {
-        StateStatus result;
-
         if (state == null) return StateStatus.ALL;
         switch (state) {
             case "ALL":
@@ -160,6 +158,7 @@ public class BookingServiceImpl {
             case "WAITING":
                 return StateStatus.WAITING;
             default:
+                // Это исключение необходимо для прохождения теста.
                 throw new ValidationException(String.format("Unknown state: %s", state));
         }
     }

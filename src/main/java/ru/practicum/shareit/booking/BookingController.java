@@ -16,19 +16,20 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping(path = "/bookings")
 public class BookingController {
-
-    private final BookingServiceImpl bookingService;
-
+    private final BookingService bookingService;
+    private final String hEADERuSERiD = "X-Sharer-User-Id";
+    
     @PostMapping
+
     public BookingDtoOut addBookingRequest(
             @RequestBody BookingDtoIn bookingDtoIn,
-            @RequestHeader("X-Sharer-User-Id") @NotNull Integer bookerId) {
+            @RequestHeader(hEADERuSERiD) @NotNull Integer bookerId) {
         return bookingService.addBooking(bookerId, bookingDtoIn);
     }
 
     @PatchMapping("/{bookingId}")
     public BookingDtoOut makeBookingApproved(
-            @RequestHeader("X-Sharer-User-Id") Integer ownerId,
+            @RequestHeader(hEADERuSERiD) Integer ownerId,
             @PathVariable Long bookingId,
             @RequestParam Boolean approved) {
         return bookingService.ownerApproveBooking(ownerId, bookingId, approved);
@@ -36,21 +37,21 @@ public class BookingController {
 
     @GetMapping("/{bookingId}")
     public BookingDtoOut getBookingByOwnerOrBooker(
-            @RequestHeader("X-Sharer-User-Id") @NotNull Integer userId,
+            @RequestHeader(hEADERuSERiD) @NotNull Integer userId,
             @PathVariable Long bookingId) {
         return bookingService.getBookingByOwnerOrBooker(userId, bookingId);
     }
 
     @GetMapping
     public List getAllBookingsByBooker(
-            @RequestHeader("X-Sharer-User-Id") @NotNull Integer bookerId,
+            @RequestHeader(hEADERuSERiD) @NotNull Integer bookerId,
             @RequestParam(required = false) String state) {
         return bookingService.getAllByBooker(bookerId, state);
     }
 
     @GetMapping("/owner")
     public List getAllBookingsByOwner(
-            @RequestHeader("X-Sharer-User-Id") @NotNull Integer ownerId,
+            @RequestHeader(hEADERuSERiD) @NotNull Integer ownerId,
             @RequestParam(required = false) String state) {
         return bookingService.getAllByOwner(ownerId, state);
     }
