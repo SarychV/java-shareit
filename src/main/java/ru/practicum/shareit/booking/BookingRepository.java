@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -51,4 +53,34 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "(select min(b.start) from Booking b where b.item=?1 and b.start > ?2 and b.status='APPROVED') " +
             "and bo.item = ?1")
     Booking findNextBookingForItem(Item item, LocalDateTime time);
+
+    Page<Booking> findAllByBooker(User booker, Pageable page);
+
+    Page<Booking> findAllByBookerAndStatus(User booker, BookingStatus status, Pageable page);
+
+    // StateStatus.FUTURE
+    Page<Booking> findAllByBookerAndStartAfter(User booker, LocalDateTime startTime, Pageable page);
+
+    // StateStatus.CURRENT
+    Page<Booking> findAllByBookerAndStartBeforeAndEndAfter(
+            User booker, LocalDateTime startTime, LocalDateTime endTime, Pageable page);
+
+    // StateStatus.PAST
+    Page<Booking> findAllByBookerAndEndBefore(User booker, LocalDateTime endTime, Pageable page);
+
+    Page<Booking> findAllByItemOwner(User owner, Pageable page);
+
+    Page<Booking> findAllByItemOwnerAndStatus(User booker, BookingStatus status, Pageable page);
+
+    // StateStatus.FUTURE
+    Page<Booking> findAllByItemOwnerAndStartAfter(User booker, LocalDateTime startTime, Pageable page);
+
+    // StateStatus.CURRENT
+    Page<Booking> findAllByItemOwnerAndStartBeforeAndEndAfter(
+            User booker, LocalDateTime startTime, LocalDateTime endTime, Pageable page);
+
+    // StateStatus.PAST
+    Page<Booking> findAllByItemOwnerAndEndBefore(User booker, LocalDateTime endTime, Pageable page);
+
+
 }

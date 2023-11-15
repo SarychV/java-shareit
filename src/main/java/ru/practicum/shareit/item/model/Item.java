@@ -4,7 +4,6 @@ package ru.practicum.shareit.item.model;
  */
 
 import lombok.Data;
-import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
@@ -31,9 +30,8 @@ public class Item {
     @JoinColumn(name = "owner_id")
     private User owner;             // Владелец вещи
 
-    @ManyToOne
-    @JoinColumn(name = "request_id")
-    private ItemRequest request;    // Если вещь была создана по запросу другого пользователя, то в поле
+    @Column(name = "request_id")
+    private Long requestId;    // Если вещь была создана по запросу другого пользователя, то в поле
                                     // будет храниться ссылка на запрос, иначе null
 
     public static Item copyOf(Item original) {
@@ -43,7 +41,7 @@ public class Item {
         copy.description = original.description;
         copy.available = original.available;
         copy.owner = original.owner;
-        copy.request = original.request;
+        copy.requestId = original.requestId;
         return copy;
     }
 }

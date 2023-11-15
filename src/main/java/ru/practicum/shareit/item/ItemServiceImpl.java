@@ -11,6 +11,7 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoExtended;
+import ru.practicum.shareit.item.dto.ItemWithRequestIdDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
@@ -30,7 +31,7 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
 
     @Override
-    public ItemDto addItem(ItemDto itemDto, Integer ownerId) {
+    public ItemWithRequestIdDto addItem(ItemWithRequestIdDto itemDto, Integer ownerId) {
         Item item = ItemMapper.toItem(itemDto);
 
         if (item.getName().isEmpty()) {
@@ -47,7 +48,7 @@ public class ItemServiceImpl implements ItemService {
                 String.format("Владелец с id=%d отсутствует в базе.", ownerId)));
         item.setOwner(user);
 
-        return ItemMapper.toItemDto(itemRepository.save(item));
+        return ItemMapper.toItemWithRequestIdDto(itemRepository.save(item));
     }
 
     @Override

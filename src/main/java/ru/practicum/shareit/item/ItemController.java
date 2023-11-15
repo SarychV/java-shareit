@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoExtended;
+import ru.practicum.shareit.item.dto.ItemWithRequestIdDto;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -21,10 +22,10 @@ public class ItemController {
     private static final String HEADER_USER_ID = "X-Sharer-User-Id";
 
     @PostMapping
-    public ItemDto createItem(@RequestHeader(HEADER_USER_ID) @NotNull Integer ownerId,
-                              @RequestBody ItemDto itemDto) {
+    public ItemWithRequestIdDto createItem(@RequestHeader(HEADER_USER_ID) @NotNull Integer ownerId,
+                                               @RequestBody ItemWithRequestIdDto itemDto) {
         return itemService.addItem(itemDto, ownerId);
-    }
+}
 
     @PostMapping("/{itemId}/comment")
     public CommentDto addCommentToItem(
