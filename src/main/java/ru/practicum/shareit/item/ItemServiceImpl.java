@@ -53,8 +53,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto updateItem(Long itemId, ItemDto itemDto, Integer userId) {
-        Item modifiedItem = Item.copyOf(itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException(
-                String.format("Вещь с id=%d отсутствует в базе.", itemId))));
+        Item modifiedItem = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException(
+                String.format("Вещь с id=%d отсутствует в базе.", itemId)));
 
         User updater = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(
                 String.format("Пользователь с id=%d отсутствует в базе.", userId)));
@@ -103,7 +103,8 @@ public class ItemServiceImpl implements ItemService {
     public List getAllItemsByOwnerId(Integer ownerId) {
         User owner = userRepository.findById(ownerId).orElseThrow(() -> new NotFoundException(
                 String.format("Пользователь с id=%d отсутствует в базе.", ownerId)));
-        return itemRepository.findAllByOwner(owner).stream()
+        return itemRepository.findAllByOwner(owner)
+                .stream()
                 .map(item -> {
                     Booking lastBooking = bookingRepository.findLastBookingForItem(item, LocalDateTime.now());
                     Booking nextBooking = bookingRepository.findNextBookingForItem(item, LocalDateTime.now());
@@ -116,7 +117,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List lookupItemsByText(String text) {
         if (text.isEmpty()) return new ArrayList<>();
-        return itemRepository.searchByNameDescriptionForText(text).stream()
+        return itemRepository.searchByNameDescriptionForText(text)
+                .stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
@@ -142,7 +144,8 @@ public class ItemServiceImpl implements ItemService {
     protected boolean commenterHasUsedItem(User commenter, Item item) {
         List<Booking> pastBookings = bookingRepository.findAllByBookerAndEndBefore(
                         commenter, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
-        return (pastBookings.stream()
+        return (pastBookings
+                    .stream()
                     .filter(booking ->
                         booking.getItem().getId().equals(item.getId())
                         && booking.getStatus().equals(BookingStatus.APPROVED))

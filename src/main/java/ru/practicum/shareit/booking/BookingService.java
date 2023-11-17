@@ -88,16 +88,15 @@ public class BookingService {
         return BookingMapper.toBookingDtoOut(booking);
     }
 
-    public List getAllByBooker(Integer bookerId, Integer from, Integer size, String stateParam) {
+    public List<BookingDtoOut> getAllByBooker(Integer bookerId, Integer from, Integer size, String stateParam) {
         Page<Booking> bookings;
         StateStatus state = getStateStatus(stateParam);
-
         PageParams.validate(from, size);
         User booker = userRepository.findById(bookerId).orElseThrow(() -> new NotFoundException(
                 String.format("Пользователь с id=%d отсутствует в базе.", bookerId)));
 
         Sort sortByStart = Sort.by(Sort.Direction.DESC, "start");
-        Pageable page = PageRequest.of(from/size, size, sortByStart);
+        Pageable page = PageRequest.of(from / size, size, sortByStart);
 
         switch (state) {
             case WAITING:
@@ -121,7 +120,7 @@ public class BookingService {
         return BookingMapper.toListBookingDtoOut(bookings.stream().collect(Collectors.toList()));
     }
 
-    public List getAllByOwner(Integer ownerId, Integer from, Integer size, String stateParam) {
+    public List<BookingDtoOut> getAllByOwner(Integer ownerId, Integer from, Integer size, String stateParam) {
         Page<Booking> bookings;
         StateStatus state = getStateStatus(stateParam);
 

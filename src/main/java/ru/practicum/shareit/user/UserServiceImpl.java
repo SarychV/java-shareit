@@ -14,17 +14,17 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final UserRepository userJpaRepository;
+    private final UserRepository userRepository;
 
     @Override
     public UserDto addUser(UserDto userDto) {
         if (userDto.getName() == null || userDto.getEmail() == null) {
-            throw new ValidationException("Имя пользователя и адрес его электронной почты должны быть заданы.");
+            throw new ValidationException("Задайте имя пользователя или адрес электронной почты.");
         }
 
         User user = UserMapper.toUser(userDto);
         user.hasValidEmailOrThrow();
-        return UserMapper.toUserDto(userJpaRepository.save(user));
+        return UserMapper.toUserDto(userRepository.save(user));
     }
 
     @Override
@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
         int userId = user.getId();
         user.hasValidEmailOrThrow();
 
-        User modifiedUser =  userJpaRepository.findById(userId).orElseThrow(() -> new NotFoundException(
+        User modifiedUser =  userRepository.findById(userId).orElseThrow(() -> new NotFoundException(
                         String.format("Пользователь с id=%d отсутствует в базе.", userId)));
 
         String name = user.getName();
@@ -44,34 +44,35 @@ public class UserServiceImpl implements UserService {
         String email = user.getEmail();
         // В хранилище может быть такой же адрес электронной почты только у самого объекта.
         // Проверка сработает если в хранилище есть такой адрес электронной почты и он не у этого объекта.
-        if (userJpaRepository.findByEmailContainingIgnoreCase(email).isPresent()
+        if (userRepository.findByEmailContainingIgnoreCase(email).isPresent()
                 && (!modifiedUser.getEmail().equals(email))) {
-            throw new ConflictException("Адрес электронной почты пользователя должен быть уникальным.");
+            throw new ConflictException("Email пользователя должен быть уникальным.");
         }
         if (email != null) {
             modifiedUser.setEmail(email);
         }
 
-        return UserMapper.toUserDto(userJpaRepository.save(modifiedUser));
+        return UserMapper.toUserDto(userRepository.save(modifiedUser));
     }
 
     @Override
     public UserDto getUser(Integer userId) {
         return UserMapper.toUserDto(
-                userJpaRepository.findById(userId).orElseThrow(
+                userRepository.findById(userId).orElseThrow(
                         () -> new NotFoundException(
                                 String.format("Пользователь с id=%d отсутствует в базе.", userId))));
     }
 
     @Override
     public List getAllUsers() {
-        return userJpaRepository.findAll().stream()
+        return userRepository.findAll()
+                .stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public void deleteUser(Integer userId) {
-        userJpaRepository.deleteById(userId);
+        userRepository.deleteById(userId);
     }
 }

@@ -42,7 +42,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 () -> new NotFoundException("Пользователь не найден."));
 
         if (itemRequestDto.getDescription() == null) {
-            throw new ValidationException("Описание вещи не может быть пустым.");
+            throw new ValidationException("Необходимо для вещи дать описание.");
         }
 
         ItemRequest request =
@@ -59,7 +59,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         List<ItemRequest> ownerRequests = itemRequestRepository.findByRequesterId(
                 ownerId, Sort.by(Sort.Direction.DESC, "created"));
-        for(ItemRequest request : ownerRequests) {
+        for (ItemRequest request : ownerRequests) {
             List<ItemAnswer> answers = itemRepository.findAllByRequestId(request.getId());
             requestsWithAnswers.add(new ItemRequestWithAnswersDto(request, answers));
         }

@@ -5,7 +5,6 @@ package ru.practicum.shareit.request.model;
  */
 
 import lombok.Data;
-import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -21,8 +20,6 @@ public class ItemRequest {
     @Column
     private String description;     // Текст запроса с описанием требуемой вещи
 
-    //@ManyToOne
-    //@JoinColumn(name = "requester_id")
     @Column(name = "requester_id")
     private Integer requesterId;         // Пользователь, создавший запрос
 

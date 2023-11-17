@@ -7,9 +7,11 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Setter @Getter @ToString
-@EqualsAndHashCode
-@NoArgsConstructor
+//@Setter
+@Getter
+//@ToString
+//@EqualsAndHashCode
+//@NoArgsConstructor
 public class ItemRequestWithAnswersDto {
     private Long id;
     private String description;

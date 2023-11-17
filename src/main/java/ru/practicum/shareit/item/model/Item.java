@@ -33,17 +33,6 @@ public class Item {
     @Column(name = "request_id")
     private Long requestId;    // Если вещь была создана по запросу другого пользователя, то в поле
                                     // будет храниться ссылка на запрос, иначе null
-
-    public static Item copyOf(Item original) {
-        Item copy = new Item();
-        copy.id = original.id;
-        copy.name = original.name;
-        copy.description = original.description;
-        copy.available = original.available;
-        copy.owner = original.owner;
-        copy.requestId = original.requestId;
-        return copy;
-    }
 }
 
 

@@ -5,12 +5,13 @@ package ru.practicum.shareit.item.dto;
  */
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Data
+@AllArgsConstructor
 public class ItemDto {
-    private final Long id;                // Уникальный идентификатор вещи
-    private final String name;            // Название вещи
-    private final String description;     // Развернутое описание
-    private final Boolean available;      // Доступна вещь для аренды или нет
+    private Long id;                // Уникальный идентификатор вещи
+    private String name;            // Название вещи
+    private String description;     // Развернутое описание
+    private Boolean available;      // Доступна вещь для аренды или нет
 }
