@@ -7,6 +7,7 @@ import ru.practicum.shareit.item.dto.ItemDtoExtended;
 import ru.practicum.shareit.item.dto.ItemWithRequestIdDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.model.ItemAnswerDto;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -69,5 +70,16 @@ public class ItemMapper {
         item.setAvailable(itemDto.getAvailable());
         item.setRequestId(itemDto.getRequestId());
         return item;
+    }
+
+    public static ItemAnswerDto toItemAnswerDto(Item item) {
+        ItemAnswerDto result = new ItemAnswerDto(
+                item.getId(),
+                item.getName(),
+                item.getDescription(),
+                item.getRequestId(),
+                item.getAvailable()
+        );
+        return result;
     }
 }

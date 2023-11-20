@@ -20,7 +20,6 @@ public class BookingController {
     private static final String HEADER_USER_ID = "X-Sharer-User-Id";
 
     @PostMapping
-
     public BookingDtoOut addBookingRequest(
             @RequestBody BookingDtoIn bookingDtoIn,
             @RequestHeader(HEADER_USER_ID) @NotNull Integer bookerId) {

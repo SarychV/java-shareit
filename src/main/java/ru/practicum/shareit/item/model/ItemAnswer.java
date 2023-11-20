@@ -7,7 +7,7 @@ public interface ItemAnswer {
 
     String getDescription();
 
-    Integer getRequestId();
+    Long getRequestId();
 
     Boolean getAvailable();
 }

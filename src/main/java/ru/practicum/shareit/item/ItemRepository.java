@@ -8,6 +8,7 @@ import ru.practicum.shareit.item.model.ItemAnswer;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
@@ -20,4 +21,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> searchByNameDescriptionForText(String text);
 
     List<ItemAnswer> findAllByRequestId(Long requestId);
+
+    List<Item> findByRequestIdIn(Set<Long> requestIds);
 }

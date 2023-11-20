@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestWithAnswersDto;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -44,6 +45,10 @@ class ItemRequestServiceImplTest {
     ItemRequestDto itemRequestDto = new ItemRequestDto();
     ItemRequest itemRequest = new ItemRequest();
 
+    Item item1;
+
+    User user1;
+
     @BeforeEach
     void setup() {
         itemRequestDto.setId(1L);
@@ -54,6 +59,19 @@ class ItemRequestServiceImplTest {
         itemRequest.setDescription("Description");
         itemRequest.setRequesterId(1);
         itemRequest.setCreated(LocalDateTime.of(2023, 11, 15, 15, 6));
+
+        item1 = new Item();
+        item1.setId(1L);
+        item1.setName("item");
+        item1.setDescription("good item");
+        item1.setAvailable(true);
+        item1.setOwner(user1);
+        item1.setRequestId(1L);
+
+        user1 = new User();
+        user1.setId(2);
+        user1.setName("user1");
+        user1.setEmail("User1@mail.co");
     }
 
     @Test
@@ -118,12 +136,12 @@ class ItemRequestServiceImplTest {
         int requesterId = 1;
         Integer from = 0;
         Integer size = 5;
-        Page<ItemRequest> requestsPage = new PageImpl(List.of(itemRequest, itemRequest));
+        Page<ItemRequest> requestsPage = new PageImpl(List.of(itemRequest));
         Mockito.when(userRepository.findById(requesterId)).thenReturn(Optional.of(new User()));
         Mockito.when(itemRequestRepository.findByRequesterIdNot(eq(requesterId), any(Pageable.class)))
                 .thenReturn(requestsPage);
-        Mockito.when(itemRepository.findAllByRequestId(anyLong()))
-                .thenReturn(List.of());
+        Mockito.when(itemRepository.findByRequestIdIn(anySet()))
+                .thenReturn(List.of(item1));
 
         List<ItemRequestWithAnswersDto> list = service.getAllItemRequests(requesterId, from, size);
 

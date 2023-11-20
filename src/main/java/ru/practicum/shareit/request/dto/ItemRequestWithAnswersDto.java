@@ -16,10 +16,10 @@ public class ItemRequestWithAnswersDto {
     private Long id;
     private String description;
     private LocalDateTime created;
-    List<ItemAnswer> items;
+    List<? extends ItemAnswer> items;
 
 
-    public ItemRequestWithAnswersDto(ItemRequest itemRequest, List<ItemAnswer> answers) {
+    public ItemRequestWithAnswersDto(ItemRequest itemRequest, List<? extends ItemAnswer> answers) {
         this.id = itemRequest.getId();
         this.description = itemRequest.getDescription();
         this.created = itemRequest.getCreated();

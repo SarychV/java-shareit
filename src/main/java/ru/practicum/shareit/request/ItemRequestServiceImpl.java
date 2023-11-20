@@ -8,7 +8,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.model.ItemAnswerDto;
 import ru.practicum.shareit.item.model.ItemAnswer;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestWithAnswersDto;
@@ -17,8 +19,8 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.validation.PageParams;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -68,8 +70,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public List<ItemRequestWithAnswersDto> getAllItemRequests(Integer requesterId, Integer from, Integer size) {
-        List<ItemRequestWithAnswersDto> requestsWithAnswers = new ArrayList<>();
-
         User requester = userRepository.findById(requesterId).orElseThrow(
                 () -> new NotFoundException("Пользователь не найден."));
         PageParams.validate(from, size);
@@ -78,12 +78,21 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         Pageable page = PageRequest.of(from, size, sortByCreated);
         Page<ItemRequest> pageSelection = itemRequestRepository.findByRequesterIdNot(requesterId, page);
 
-        List<ItemRequest> listSelection = pageSelection.stream().collect(Collectors.toList());
-        for (ItemRequest request : listSelection) {
-            List<ItemAnswer> answers = itemRepository.findAllByRequestId(request.getId());
-            requestsWithAnswers.add(new ItemRequestWithAnswersDto(request, answers));
-        }
-        return requestsWithAnswers;
+        Map<Long, ItemRequest> mapSelection = pageSelection
+                .stream()
+                .collect(Collectors.toMap(ItemRequest::getId, Function.identity()));
+
+        Map<Long, List<ItemAnswerDto>> itemMap = itemRepository.findByRequestIdIn(mapSelection.keySet())
+                .stream()
+                .map(ItemMapper::toItemAnswerDto)
+                .collect(Collectors.groupingBy(ItemAnswerDto::getRequestId));
+
+        return mapSelection.values()
+                .stream()
+                .map(itemRequest ->
+                    new ItemRequestWithAnswersDto(itemRequest,
+                            itemMap.getOrDefault(itemRequest.getId(), Collections.emptyList())))
+                .collect(Collectors.toList());
     }
 
     @Override
