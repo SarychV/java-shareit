@@ -4,8 +4,10 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.dto.BookingDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoExtended;
+import ru.practicum.shareit.item.dto.ItemWithRequestIdDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.model.ItemAnswerDto;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,15 +20,6 @@ public class ItemMapper {
                 item.getDescription(),
                 item.getAvailable()
         );
-    }
-
-    public static Item toItem(ItemDto itemDto) {
-        Item item = new Item();
-        item.setId(itemDto.getId());
-        item.setName(itemDto.getName());
-        item.setDescription(itemDto.getDescription());
-        item.setAvailable(itemDto.getAvailable());
-        return item;
     }
 
     public static ItemDtoExtended toItemDtoExtended(
@@ -57,5 +50,36 @@ public class ItemMapper {
             return new BookingDto(booking.getId(), booking.getBooker().getId());
         }
         return null;
+    }
+
+    public static ItemWithRequestIdDto toItemWithRequestIdDto(Item item) {
+        return new ItemWithRequestIdDto(
+                item.getId(),
+                item.getName(),
+                item.getDescription(),
+                item.getAvailable(),
+                item.getRequestId()
+        );
+    }
+
+    public static Item toItem(ItemWithRequestIdDto itemDto) {
+        Item item = new Item();
+        item.setId(itemDto.getId());
+        item.setName(itemDto.getName());
+        item.setDescription(itemDto.getDescription());
+        item.setAvailable(itemDto.getAvailable());
+        item.setRequestId(itemDto.getRequestId());
+        return item;
+    }
+
+    public static ItemAnswerDto toItemAnswerDto(Item item) {
+        ItemAnswerDto result = new ItemAnswerDto(
+                item.getId(),
+                item.getName(),
+                item.getDescription(),
+                item.getRequestId(),
+                item.getAvailable()
+        );
+        return result;
     }
 }

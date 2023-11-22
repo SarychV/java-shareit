@@ -11,6 +11,7 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoExtended;
+import ru.practicum.shareit.item.dto.ItemWithRequestIdDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
@@ -30,7 +31,7 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
 
     @Override
-    public ItemDto addItem(ItemDto itemDto, Integer ownerId) {
+    public ItemWithRequestIdDto addItem(ItemWithRequestIdDto itemDto, Integer ownerId) {
         Item item = ItemMapper.toItem(itemDto);
 
         if (item.getName().isEmpty()) {
@@ -47,13 +48,13 @@ public class ItemServiceImpl implements ItemService {
                 String.format("Владелец с id=%d отсутствует в базе.", ownerId)));
         item.setOwner(user);
 
-        return ItemMapper.toItemDto(itemRepository.save(item));
+        return ItemMapper.toItemWithRequestIdDto(itemRepository.save(item));
     }
 
     @Override
     public ItemDto updateItem(Long itemId, ItemDto itemDto, Integer userId) {
-        Item modifiedItem = Item.copyOf(itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException(
-                String.format("Вещь с id=%d отсутствует в базе.", itemId))));
+        Item modifiedItem = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException(
+                String.format("Вещь с id=%d отсутствует в базе.", itemId)));
 
         User updater = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(
                 String.format("Пользователь с id=%d отсутствует в базе.", userId)));
@@ -102,7 +103,8 @@ public class ItemServiceImpl implements ItemService {
     public List getAllItemsByOwnerId(Integer ownerId) {
         User owner = userRepository.findById(ownerId).orElseThrow(() -> new NotFoundException(
                 String.format("Пользователь с id=%d отсутствует в базе.", ownerId)));
-        return itemRepository.findAllByOwner(owner).stream()
+        return itemRepository.findAllByOwner(owner)
+                .stream()
                 .map(item -> {
                     Booking lastBooking = bookingRepository.findLastBookingForItem(item, LocalDateTime.now());
                     Booking nextBooking = bookingRepository.findNextBookingForItem(item, LocalDateTime.now());
@@ -115,7 +117,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List lookupItemsByText(String text) {
         if (text.isEmpty()) return new ArrayList<>();
-        return itemRepository.searchByNameDescriptionForText(text).stream()
+        return itemRepository.searchByNameDescriptionForText(text)
+                .stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
@@ -141,7 +144,8 @@ public class ItemServiceImpl implements ItemService {
     protected boolean commenterHasUsedItem(User commenter, Item item) {
         List<Booking> pastBookings = bookingRepository.findAllByBookerAndEndBefore(
                         commenter, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
-        return (pastBookings.stream()
+        return (pastBookings
+                    .stream()
                     .filter(booking ->
                         booking.getItem().getId().equals(item.getId())
                         && booking.getStatus().equals(BookingStatus.APPROVED))

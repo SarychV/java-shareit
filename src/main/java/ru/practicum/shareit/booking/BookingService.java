@@ -1,6 +1,9 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
@@ -14,9 +17,11 @@ import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.validation.PageParams;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -83,63 +88,69 @@ public class BookingService {
         return BookingMapper.toBookingDtoOut(booking);
     }
 
-    public List getAllByBooker(Integer bookerId, String stateParam) {
-        List<Booking> bookings;
+    public List<BookingDtoOut> getAllByBooker(Integer bookerId, Integer from, Integer size, String stateParam) {
+        Page<Booking> bookings;
         StateStatus state = getStateStatus(stateParam);
+        PageParams.validate(from, size);
         User booker = userRepository.findById(bookerId).orElseThrow(() -> new NotFoundException(
                 String.format("Пользователь с id=%d отсутствует в базе.", bookerId)));
+
+        Sort sortByStart = Sort.by(Sort.Direction.DESC, "start");
+        Pageable page = PageRequest.of(from / size, size, sortByStart);
+
         switch (state) {
             case WAITING:
             case REJECTED:
                 BookingStatus bs = mapStateToBookingStatuses(state);
-                bookings = bookingRepository.findAllByBookerAndStatus(booker, bs,
-                        Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findAllByBookerAndStatus(booker, bs, page);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findAllByBookerAndStartAfter(booker, LocalDateTime.now(),
-                        Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findAllByBookerAndStartAfter(booker, LocalDateTime.now(), page);
                 break;
             case PAST:
-                bookings = bookingRepository.findAllByBookerAndEndBefore(booker, LocalDateTime.now(),
-                        Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findAllByBookerAndEndBefore(booker, LocalDateTime.now(), page);
                 break;
             case CURRENT:
                 bookings = bookingRepository.findAllByBookerAndStartBeforeAndEndAfter(booker,
-                        LocalDateTime.now(), LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+                        LocalDateTime.now(), LocalDateTime.now(), page);
                 break;
             default:
-                bookings = bookingRepository.findAllByBooker(booker, Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findAllByBooker(booker, page);
         }
-        return BookingMapper.toListBookingDtoOut(bookings);
+        return BookingMapper.toListBookingDtoOut(bookings.stream().collect(Collectors.toList()));
     }
 
-    public List getAllByOwner(Integer ownerId, String stateParam) {
+    public List<BookingDtoOut> getAllByOwner(Integer ownerId, Integer from, Integer size, String stateParam) {
+        Page<Booking> bookings;
         StateStatus state = getStateStatus(stateParam);
+
+        PageParams.validate(from,size);
         User owner = userRepository.findById(ownerId).orElseThrow(() -> new NotFoundException(
                 String.format("Пользователь с id=%d отсутствует в базе.", ownerId)));
+
+        Sort sortByStart = Sort.by(Sort.Direction.DESC, "start");
+        Pageable page = PageRequest.of(from, size, sortByStart);
+
         switch (state) {
             case WAITING:
             case REJECTED:
                 BookingStatus bs = mapStateToBookingStatuses(state);
-                return BookingMapper.toListBookingDtoOut(
-                        bookingRepository.findAllByItemOwnerAndStatus(
-                                owner, bs, Sort.by(Sort.Direction.DESC, "start")));
+                bookings = bookingRepository.findAllByItemOwnerAndStatus(owner, bs, page);
+                break;
             case FUTURE:
-                return BookingMapper.toListBookingDtoOut(
-                        bookingRepository.findAllByItemOwnerAndStartAfter(
-                                owner, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start")));
+                bookings = bookingRepository.findAllByItemOwnerAndStartAfter(owner, LocalDateTime.now(), page);
+                break;
             case PAST:
-                return BookingMapper.toListBookingDtoOut(
-                        bookingRepository.findAllByItemOwnerAndEndBefore(
-                                owner, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start")));
+                bookings = bookingRepository.findAllByItemOwnerAndEndBefore(owner, LocalDateTime.now(), page);
+                break;
             case CURRENT:
-                return BookingMapper.toListBookingDtoOut(
-                        bookingRepository.findAllByItemOwnerAndStartBeforeAndEndAfter(owner,
-                                LocalDateTime.now(), LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start")));
+                bookings = bookingRepository.findAllByItemOwnerAndStartBeforeAndEndAfter(
+                        owner, LocalDateTime.now(), LocalDateTime.now(), page);
+                break;
             default:
-                return BookingMapper.toListBookingDtoOut(
-                        bookingRepository.findAllByItemOwner(owner, Sort.by(Sort.Direction.DESC, "start")));
+                bookings = bookingRepository.findAllByItemOwner(owner, page);
         }
+        return BookingMapper.toListBookingDtoOut(bookings.stream().collect(Collectors.toList()));
     }
 
     protected StateStatus getStateStatus(final String state) {
