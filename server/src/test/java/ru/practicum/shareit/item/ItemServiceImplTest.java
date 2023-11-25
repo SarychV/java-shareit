@@ -261,7 +261,7 @@ class ItemServiceImplTest {
         int ownerId = 1;
         List<Item> listOfItems = List.of(itemIn);
         Mockito.when(userRepository.findById(ownerId)).thenReturn(Optional.of(user1));
-        Mockito.when(itemRepository.findAllByOwner(any(User.class)))
+        Mockito.when(itemRepository.findAllByOwnerOrderById(any(User.class)))
                 .thenReturn(listOfItems);
         Mockito.when(bookingRepository.findLastBookingForItem(eq(itemIn), any(LocalDateTime.class)))
                 .thenReturn(lastBooking);
@@ -289,7 +289,7 @@ class ItemServiceImplTest {
 
         assertThrows(NotFoundException.class, () -> service.getAllItemsByOwnerId(ownerId));
 
-        Mockito.verify(itemRepository, never()).findAllByOwner(any(User.class));
+        Mockito.verify(itemRepository, never()).findAllByOwnerOrderById(any(User.class));
     }
 
     @Test

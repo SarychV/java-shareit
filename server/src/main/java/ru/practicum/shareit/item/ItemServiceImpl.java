@@ -93,7 +93,7 @@ public class ItemServiceImpl implements ItemService {
     public List getAllItemsByOwnerId(Integer ownerId) {
         User owner = userRepository.findById(ownerId).orElseThrow(() -> new NotFoundException(
                 String.format("Пользователь с id=%d отсутствует в базе.", ownerId)));
-        return itemRepository.findAllByOwner(owner)
+        return itemRepository.findAllByOwnerOrderById(owner)
                 .stream()
                 .map(item -> {
                     Booking lastBooking = bookingRepository.findLastBookingForItem(item, LocalDateTime.now());

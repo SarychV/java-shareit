@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
         String email = user.getEmail();
         // В хранилище может быть такой же адрес электронной почты только у самого объекта.
         // Проверка сработает если в хранилище есть такой адрес электронной почты и он не у этого объекта.
-        if (userRepository.findByEmailContainingIgnoreCase(email).isPresent()
+        if (email != null && userRepository.findByEmailContainingIgnoreCase(email).isPresent()
                 && (!modifiedUser.getEmail().equals(email))) {
             throw new ConflictException("Email пользователя должен быть уникальным.");
         }
