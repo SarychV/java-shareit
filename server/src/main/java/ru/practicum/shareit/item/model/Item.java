@@ -28,7 +28,7 @@ public class Item {
     private User owner;             // Владелец вещи
 
     @Column(name = "request_id")
-    private Long requestId;    // Если вещь была создана по запросу другого пользователя, то в поле
+    private Long requestId;         // Если вещь была создана по запросу другого пользователя, то в поле
                                     // будет храниться ссылка на запрос, иначе null
 }
 

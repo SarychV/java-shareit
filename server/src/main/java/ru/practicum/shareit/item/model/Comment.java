@@ -12,18 +12,18 @@ import java.time.LocalDateTime;
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id;                // уникальный идентификатор комментария
 
-    private String text;
+    private String text;            // Текст комментария
 
     @ManyToOne
     @JoinColumn(name = "item_id")
-    private Item item;
+    private Item item;              // Вещь, которая комментируется
 
     @ManyToOne
     @JoinColumn(name = "author_id")
-    private User user;
+    private User user;              // Пользователь, оставивший комментарий
 
     @Column(name = "create_date")
-    private LocalDateTime created;
+    private LocalDateTime created;  // Дата создания комментария
 }
